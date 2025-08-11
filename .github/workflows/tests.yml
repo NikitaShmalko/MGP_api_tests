@@ -10,18 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - run: |
           pip install -U pip
           pip install -r requirements.txt
-      - run: pytest --alluredir=allure-results -v -s || true
+
+      - run: pytest --alluredir=allure-results -v -s
+        continue-on-error: true
       - uses: simple-elf/allure-report-action@master
         with:
           allure_results: allure-results
           allure_report: allure-report
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
-      - uses: actions/deploy-pages@v4
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Show report URL
+        run: echo "Report URL: ${{ steps.deployment.outputs.page_url }}"
