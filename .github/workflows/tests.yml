@@ -1,17 +1,19 @@
-name: tests_api
+name: tests_api-pages
+on: workflow_dispatch
 
-on:
-  workflow_dispatch:       #
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -21,5 +23,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest -v -s
+      - name: Setup Allure CLI
+        uses: allure-framework/actions/setup-allure@v1
+
+      - name: Run pytest with Allure
+        run: pytest --alluredir=allure-results -v -s
+
+      - name: Generate Allure HTML
+        run: allure generate -c allure-results -o ./allure-report
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./allure-report
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
