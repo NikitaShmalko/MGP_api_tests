@@ -1,4 +1,4 @@
-name: tests_api-pages
+name: tests-pages
 on: workflow_dispatch
 
 permissions:
@@ -10,27 +10,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install -U pip
           pip install -r requirements.txt
 
-      - name: Setup Allure CLI
-        uses: allure-framework/actions/setup-allure@v1
-
-      - name: Run pytest with Allure
+      - name: Run pytest and save Allure results
         run: pytest --alluredir=allure-results -v -s
 
-      - name: Generate Allure HTML
-        run: allure generate -c allure-results -o ./allure-report
+      - name: Build Allure report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          allure_history: allure-history
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
