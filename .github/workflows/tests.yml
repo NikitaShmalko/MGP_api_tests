@@ -1,13 +1,25 @@
-name: test_api
-on: workflow_dispatch
+name: tests_api
+
+on:
+  workflow_dispatch:       #
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -U pip pytest requests pydantic allure-pytest
-      - run: pytest -v -s
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -v -s
