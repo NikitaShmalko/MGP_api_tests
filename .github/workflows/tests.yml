@@ -1,4 +1,4 @@
-name: tests-pages
+name: api_tests-pages
 on: workflow_dispatch
 
 permissions:
