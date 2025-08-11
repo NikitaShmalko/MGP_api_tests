@@ -1,4 +1,4 @@
-name: api_tests-pages
+name: tests-pages
 on: workflow_dispatch
 
 permissions:
@@ -6,7 +6,7 @@ permissions:
   id-token: write
 
 jobs:
-  test:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,9 +24,4 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/deploy-pages@v4
