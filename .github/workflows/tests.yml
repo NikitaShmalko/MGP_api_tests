@@ -1,4 +1,4 @@
-name: api_tests-pages
+name: tests
 on: workflow_dispatch
 
 permissions:
@@ -10,42 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - run: |
-          pip install -U pip
-          pip install -r requirements.txt
-
-      - name: Run tests (collect Allure)
-        run: pytest --alluredir=allure-results -v -s
+      - run: pip install -r requirements.txt
+      - run: pytest --alluredir=allure-results
         continue-on-error: true
-
-      - name: Build Allure report
-        uses: simple-elf/allure-report-action@master
+      - uses: simple-elf/allure-report-action@master
         with:
           allure_results: allure-results
           allure_report: allure-report
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
-
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deploy
         uses: actions/deploy-pages@v4
-
-      - name: Show report URL in logs
-        run: echo "Report URL: ${{ steps.deployment.outputs.page_url }}"
-
-      - name: Add link to Job Summary
-        run: |
-          {
-            echo "### ✅ Allure Report";
-            echo;
-            echo "[Открыть отчёт](${{ steps.deployment.outputs.page_url }})";
-          } >> "$GITHUB_STEP_SUMMARY"
+      - run: |
+          echo "### Allure Report" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
 
