@@ -1,4 +1,4 @@
-name: tests
+name: test_api
 on: workflow_dispatch
 
 jobs:
