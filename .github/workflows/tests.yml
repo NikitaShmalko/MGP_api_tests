@@ -19,14 +19,18 @@ jobs:
           pip install -U pip
           pip install -r requirements.txt
 
-      - run: pytest --alluredir=allure-results -v -s
+      - name: Run tests (collect Allure)
+        run: pytest --alluredir=allure-results -v -s
         continue-on-error: true
-      - uses: simple-elf/allure-report-action@master
+
+      - name: Build Allure report
+        uses: simple-elf/allure-report-action@master
         with:
           allure_results: allure-results
           allure_report: allure-report
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
 
@@ -34,5 +38,14 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Show report URL
+      - name: Show report URL in logs
         run: echo "Report URL: ${{ steps.deployment.outputs.page_url }}"
+
+      - name: Add link to Job Summary
+        run: |
+          {
+            echo "### ✅ Allure Report";
+            echo;
+            echo "[Открыть отчёт](${{ steps.deployment.outputs.page_url }})";
+          } >> "$GITHUB_STEP_SUMMARY"
+
